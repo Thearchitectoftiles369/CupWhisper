@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_theme.dart';
 import '../features/home/home_screen.dart';
 
 class CupWhisperApp extends StatelessWidget {
@@ -9,10 +10,7 @@ class CupWhisperApp extends StatelessWidget {
     return MaterialApp(
       title: 'CupWhisper',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.brown,
-      ),
+      theme: AppTheme.dark,
       home: const HomeScreen(),
     );
   }
