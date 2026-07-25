@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../reading/camera_screen.dart';
 
 class ChooseStorytellerScreen extends StatelessWidget {
   const ChooseStorytellerScreen({super.key});
@@ -77,7 +78,15 @@ class _StorytellerCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: enabled ? () {} : null,
+                onPressed: enabled
+                    ? () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const CameraScreen(),
+                          ),
+                        );
+                      }
+                    : null,
                 style: enabled
                     ? null
                     : ElevatedButton.styleFrom(
