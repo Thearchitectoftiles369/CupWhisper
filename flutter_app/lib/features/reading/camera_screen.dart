@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
-import 'processing_screen.dart';
+import 'photo_preview_screen.dart';
 
-class CameraScreen extends StatelessWidget {
+class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
+
+  @override
+  State<CameraScreen> createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _takePhoto() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+
+    if (photo == null || !mounted) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PhotoPreviewScreen(imagePath: photo.path),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,13 +66,7 @@ class CameraScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ProcessingScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: _takePhoto,
                   child: const Text('Take Photo'),
                 ),
               ),
