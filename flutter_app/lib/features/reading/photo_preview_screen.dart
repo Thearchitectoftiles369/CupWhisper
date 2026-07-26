@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../services/ai_models.dart';
 import 'processing_screen.dart';
 
 const int _minDimension = 300;
@@ -12,9 +13,14 @@ const int _minDimension = 300;
 enum _ValidationState { checking, valid, invalid }
 
 class PhotoPreviewScreen extends StatefulWidget {
-  const PhotoPreviewScreen({super.key, required this.imagePath});
+  const PhotoPreviewScreen({
+    super.key,
+    required this.imagePath,
+    required this.storyteller,
+  });
 
   final String imagePath;
+  final Storyteller storyteller;
 
   @override
   State<PhotoPreviewScreen> createState() => _PhotoPreviewScreenState();
@@ -110,7 +116,10 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
                     onPressed: () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => const ProcessingScreen(),
+                          builder: (context) => ProcessingScreen(
+                            imagePath: widget.imagePath,
+                            storyteller: widget.storyteller,
+                          ),
                         ),
                       );
                     },

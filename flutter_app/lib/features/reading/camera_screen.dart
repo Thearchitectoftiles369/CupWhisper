@@ -3,10 +3,13 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../services/ai_models.dart';
 import 'photo_preview_screen.dart';
 
 class CameraScreen extends StatefulWidget {
-  const CameraScreen({super.key});
+  const CameraScreen({super.key, required this.storyteller});
+
+  final Storyteller storyteller;
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -22,7 +25,10 @@ class _CameraScreenState extends State<CameraScreen> {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PhotoPreviewScreen(imagePath: photo.path),
+        builder: (context) => PhotoPreviewScreen(
+          imagePath: photo.path,
+          storyteller: widget.storyteller,
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../services/ai_models.dart';
 import '../reading/camera_screen.dart';
 
 class ChooseStorytellerScreen extends StatelessWidget {
@@ -14,27 +15,35 @@ class ChooseStorytellerScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
-          children: const [
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.xl,
+          ),
+          children: [
             _StorytellerCard(
-              flag: '🇧🇬',
-              name: 'Bulgarian Fortune Teller',
+              flag: Storyteller.bulgarian.flag,
+              name: Storyteller.bulgarian.displayName,
               description: 'Ancient Balkan coffee reading tradition.',
               enabled: true,
+              storyteller: Storyteller.bulgarian,
             ),
-            SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.md),
             _StorytellerCard(
-              flag: '🇹🇷',
-              name: 'Turkish Fortune Teller',
+              flag: Storyteller.turkish.flag,
+              name: Storyteller.turkish.displayName,
               description: 'Traditional Turkish coffee fortune reading.',
               enabled: true,
+              storyteller: Storyteller.turkish,
             ),
-            SizedBox(height: AppSpacing.md),
-            _StorytellerCard(
+            const SizedBox(height: AppSpacing.md),
+            const _StorytellerCard(
               flag: '🔒',
               name: 'Coming Soon',
               description: 'A new storyteller will arrive in a future update.',
               enabled: false,
+              storyteller: null,
             ),
           ],
         ),
@@ -49,12 +58,14 @@ class _StorytellerCard extends StatelessWidget {
     required this.name,
     required this.description,
     required this.enabled,
+    required this.storyteller,
   });
 
   final String flag;
   final String name;
   final String description;
   final bool enabled;
+  final Storyteller? storyteller;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +73,7 @@ class _StorytellerCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -78,11 +89,12 @@ class _StorytellerCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: enabled
+                onPressed: enabled && storyteller != null
                     ? () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const CameraScreen(),
+                            builder: (context) =>
+                                CameraScreen(storyteller: storyteller!),
                           ),
                         );
                       }
