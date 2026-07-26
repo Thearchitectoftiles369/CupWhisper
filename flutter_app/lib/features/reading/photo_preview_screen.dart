@@ -31,7 +31,6 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
     _scale = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    _controller.forward();
   }
 
   @override
@@ -74,6 +73,25 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
                           File(widget.imagePath),
                           fit: BoxFit.cover,
                           width: double.infinity,
+                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) {
+                              return child;
+                            }
+                            if (frame == null) {
+                              return Container(
+                                color: AppColors.darkChocolate,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+                            if (!_controller.isAnimating && !_controller.isCompleted) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _controller.forward();
+                              });
+                            }
+                            return child;
+                          },
                         ),
                       ),
                     ),
