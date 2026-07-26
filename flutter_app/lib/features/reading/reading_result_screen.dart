@@ -28,7 +28,7 @@ class ReadingResultScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                result.storyteller.displayName,
+                ref.tr('${result.storyteller.id}_name'),
                 style: textTheme.titleMedium?.copyWith(
                   color: AppColors.warmCreamMuted,
                 ),

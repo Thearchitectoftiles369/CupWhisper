@@ -26,7 +26,7 @@ class ChooseStorytellerScreen extends ConsumerWidget {
           children: [
             _StorytellerCard(
               flag: Storyteller.bulgarian.flag,
-              name: Storyteller.bulgarian.displayName,
+              name: ref.tr('bulgarian_name'),
               descriptionKey: 'bulgarian_desc',
               enabled: true,
               storyteller: Storyteller.bulgarian,
@@ -34,7 +34,7 @@ class ChooseStorytellerScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             _StorytellerCard(
               flag: Storyteller.turkish.flag,
-              name: Storyteller.turkish.displayName,
+              name: ref.tr('turkish_name'),
               descriptionKey: 'turkish_desc',
               enabled: true,
               storyteller: Storyteller.turkish,
