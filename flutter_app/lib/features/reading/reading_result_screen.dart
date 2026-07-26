@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
+import '../../services/app_strings.dart';
 import '../home/home_screen.dart';
 
-class ReadingResultScreen extends StatelessWidget {
+class ReadingResultScreen extends ConsumerWidget {
   const ReadingResultScreen({super.key, required this.result});
 
   final ReadingResult result;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -51,7 +53,7 @@ class ReadingResultScreen extends StatelessWidget {
                       (route) => false,
                     );
                   },
-                  child: const Text('Back to Home'),
+                  child: Text(ref.tr('back_to_home')),
                 ),
               ),
             ],

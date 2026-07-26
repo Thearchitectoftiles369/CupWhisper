@@ -2,17 +2,19 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
+import '../../services/app_strings.dart';
 import 'processing_screen.dart';
 
 const int _minDimension = 300;
 
 enum _ValidationState { checking, valid, invalid }
 
-class PhotoPreviewScreen extends StatefulWidget {
+class PhotoPreviewScreen extends ConsumerStatefulWidget {
   const PhotoPreviewScreen({
     super.key,
     required this.imagePath,
@@ -23,17 +25,17 @@ class PhotoPreviewScreen extends StatefulWidget {
   final Storyteller storyteller;
 
   @override
-  State<PhotoPreviewScreen> createState() => _PhotoPreviewScreenState();
+  ConsumerState<PhotoPreviewScreen> createState() => _PhotoPreviewScreenState();
 }
 
-class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
+class _PhotoPreviewScreenState extends ConsumerState<PhotoPreviewScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fade;
   late final Animation<double> _scale;
 
   _ValidationState _state = _ValidationState.checking;
-  String _errorMessage = '';
+  String _errorKey = '';
 
   @override
   void initState() {
@@ -54,13 +56,13 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
       final file = File(widget.imagePath);
 
       if (!await file.exists()) {
-        _fail('This photo could not be found. Please try again.');
+        _fail('error_not_found');
         return;
       }
 
       final length = await file.length();
       if (length == 0) {
-        _fail('This photo appears to be empty. Please try again.');
+        _fail('error_empty');
         return;
       }
 
@@ -70,7 +72,7 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
       final image = frame.image;
 
       if (image.width < _minDimension || image.height < _minDimension) {
-        _fail('This photo is too small. Please retake with a clearer shot.');
+        _fail('error_too_small');
         return;
       }
 
@@ -78,15 +80,15 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
       setState(() => _state = _ValidationState.valid);
       _controller.forward();
     } catch (_) {
-      _fail("We couldn't read this photo. Please try again.");
+      _fail('error_unreadable');
     }
   }
 
-  void _fail(String message) {
+  void _fail(String key) {
     if (!mounted) return;
     setState(() {
       _state = _ValidationState.invalid;
-      _errorMessage = message;
+      _errorKey = key;
     });
   }
 
@@ -100,7 +102,7 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Cup'),
+        title: Text(ref.tr('your_cup_title')),
       ),
       body: SafeArea(
         child: Padding(
@@ -124,7 +126,7 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
                       );
                     },
                     icon: const Icon(Icons.auto_awesome),
-                    label: const Text('Use This Photo'),
+                    label: Text(ref.tr('use_this_photo')),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -134,7 +136,7 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
                 child: OutlinedButton.icon(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Retake'),
+                  label: Text(ref.tr('retake')),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.warmCream,
                     side: const BorderSide(color: AppColors.warmCreamMuted),
@@ -176,7 +178,7 @@ class _PhotoPreviewScreenState extends State<PhotoPreviewScreen>
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  _errorMessage,
+                  ref.tr(_errorKey),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),

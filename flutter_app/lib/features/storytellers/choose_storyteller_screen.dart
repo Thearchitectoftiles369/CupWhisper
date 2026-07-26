@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
+import '../../services/app_strings.dart';
 import '../reading/camera_screen.dart';
 
-class ChooseStorytellerScreen extends StatelessWidget {
+class ChooseStorytellerScreen extends ConsumerWidget {
   const ChooseStorytellerScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose Your Storyteller'),
+        title: Text(ref.tr('choose_storyteller_title')),
       ),
       body: SafeArea(
         child: ListView(
@@ -25,7 +27,7 @@ class ChooseStorytellerScreen extends StatelessWidget {
             _StorytellerCard(
               flag: Storyteller.bulgarian.flag,
               name: Storyteller.bulgarian.displayName,
-              description: 'Ancient Balkan coffee reading tradition.',
+              descriptionKey: 'bulgarian_desc',
               enabled: true,
               storyteller: Storyteller.bulgarian,
             ),
@@ -33,15 +35,15 @@ class ChooseStorytellerScreen extends StatelessWidget {
             _StorytellerCard(
               flag: Storyteller.turkish.flag,
               name: Storyteller.turkish.displayName,
-              description: 'Traditional Turkish coffee fortune reading.',
+              descriptionKey: 'turkish_desc',
               enabled: true,
               storyteller: Storyteller.turkish,
             ),
             const SizedBox(height: AppSpacing.md),
-            const _StorytellerCard(
+            _StorytellerCard(
               flag: '🔒',
-              name: 'Coming Soon',
-              description: 'A new storyteller will arrive in a future update.',
+              name: ref.tr('coming_soon'),
+              descriptionKey: 'coming_soon_desc',
               enabled: false,
               storyteller: null,
             ),
@@ -52,23 +54,23 @@ class ChooseStorytellerScreen extends StatelessWidget {
   }
 }
 
-class _StorytellerCard extends StatelessWidget {
+class _StorytellerCard extends ConsumerWidget {
   const _StorytellerCard({
     required this.flag,
     required this.name,
-    required this.description,
+    required this.descriptionKey,
     required this.enabled,
     required this.storyteller,
   });
 
   final String flag;
   final String name;
-  final String description;
+  final String descriptionKey;
   final bool enabled;
   final Storyteller? storyteller;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
 
     return Card(
@@ -82,7 +84,7 @@ class _StorytellerCard extends StatelessWidget {
             Text(name, style: textTheme.titleMedium),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              description,
+              ref.tr(descriptionKey),
               style: textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -105,7 +107,7 @@ class _StorytellerCard extends StatelessWidget {
                         backgroundColor: AppColors.darkChocolateVariant,
                         foregroundColor: AppColors.warmCreamMuted,
                       ),
-                child: Text(enabled ? 'Select' : 'Coming Soon'),
+                child: Text(enabled ? ref.tr('select') : ref.tr('coming_soon')),
               ),
             ),
           ],

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../services/app_strings.dart';
 import '../settings/settings_screen.dart';
 import '../storytellers/choose_storyteller_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -45,7 +47,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Every cup has a story waiting to be told.',
+                ref.tr('home_tagline'),
                 style: textTheme.bodyLarge?.copyWith(
                   color: AppColors.warmCreamMuted,
                 ),
@@ -62,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Begin Reading'),
+                  child: Text(ref.tr('begin_reading')),
                 ),
               ),
             ],

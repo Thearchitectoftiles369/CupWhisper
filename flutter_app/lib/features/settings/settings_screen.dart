@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/app_language.dart';
+import '../../services/app_strings.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -13,7 +14,7 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(ref.tr('settings_title')),
       ),
       body: SafeArea(
         child: ListView(
@@ -25,7 +26,7 @@ class SettingsScreen extends ConsumerWidget {
                 vertical: AppSpacing.sm,
               ),
               child: Text(
-                'Language',
+                ref.tr('language_label'),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),

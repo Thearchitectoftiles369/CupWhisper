@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
+import '../../services/app_strings.dart';
 import 'photo_preview_screen.dart';
 
-class CameraScreen extends StatefulWidget {
+class CameraScreen extends ConsumerStatefulWidget {
   const CameraScreen({super.key, required this.storyteller});
 
   final Storyteller storyteller;
 
   @override
-  State<CameraScreen> createState() => _CameraScreenState();
+  ConsumerState<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
+class _CameraScreenState extends ConsumerState<CameraScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -51,15 +53,15 @@ class _CameraScreenState extends State<CameraScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: Text(
-                    'Choose Image',
+                    ref.tr('choose_image'),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 ListTile(
                   leading: const Icon(Icons.camera_alt_outlined, color: AppColors.antiqueGold),
-                  title: const Text('Take Photo'),
-                  subtitle: const Text('Capture a new coffee cup'),
+                  title: Text(ref.tr('take_photo')),
+                  subtitle: Text(ref.tr('take_photo_desc')),
                   onTap: () {
                     Navigator.of(context).pop();
                     _pickImage(ImageSource.camera);
@@ -67,8 +69,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library_outlined, color: AppColors.antiqueGold),
-                  title: const Text('Choose from Gallery'),
-                  subtitle: const Text('Use an existing photo'),
+                  title: Text(ref.tr('choose_gallery')),
+                  subtitle: Text(ref.tr('choose_gallery_desc')),
                   onTap: () {
                     Navigator.of(context).pop();
                     _pickImage(ImageSource.gallery);
@@ -81,7 +83,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     width: double.infinity,
                     child: TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                      child: Text(ref.tr('cancel')),
                     ),
                   ),
                 ),
@@ -99,7 +101,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Prepare Your Cup'),
+        title: Text(ref.tr('prepare_cup_title')),
       ),
       body: SafeArea(
         child: Padding(
@@ -107,7 +109,7 @@ class _CameraScreenState extends State<CameraScreen> {
           child: Column(
             children: [
               Text(
-                'Place your coffee cup on a light surface and make sure the coffee grounds are clearly visible.',
+                ref.tr('prepare_cup_instruction'),
                 style: textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
@@ -133,13 +135,13 @@ class _CameraScreenState extends State<CameraScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _showImageSourceSheet,
-                  child: const Text('Capture Cup'),
+                  child: Text(ref.tr('capture_cup')),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Back'),
+                child: Text(ref.tr('back')),
               ),
             ],
           ),

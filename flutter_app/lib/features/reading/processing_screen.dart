@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/ai_models.dart';
 import '../../services/ai_service.dart';
+import '../../services/app_language.dart';
+import '../../services/app_strings.dart';
 import 'reading_result_screen.dart';
 
-class ProcessingScreen extends StatefulWidget {
+class ProcessingScreen extends ConsumerStatefulWidget {
   const ProcessingScreen({
     super.key,
     required this.imagePath,
@@ -14,10 +17,10 @@ class ProcessingScreen extends StatefulWidget {
   final Storyteller storyteller;
 
   @override
-  State<ProcessingScreen> createState() => _ProcessingScreenState();
+  ConsumerState<ProcessingScreen> createState() => _ProcessingScreenState();
 }
 
-class _ProcessingScreenState extends State<ProcessingScreen> {
+class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   final AIService _aiService = MockAIService();
 
   @override
@@ -27,9 +30,12 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
   }
 
   Future<void> _generateReading() async {
+    final language = ref.read(appLanguageProvider);
+
     final result = await _aiService.generateReading(
       imagePath: widget.imagePath,
       storyteller: widget.storyteller,
+      language: language,
     );
 
     if (!mounted) return;
@@ -54,12 +60,12 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
               const Text('☕', style: TextStyle(fontSize: 64)),
               const SizedBox(height: 16),
               Text(
-                'Reading the symbols...',
+                ref.tr('reading_symbols'),
                 style: textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                'Please wait...',
+                ref.tr('please_wait'),
                 style: textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
