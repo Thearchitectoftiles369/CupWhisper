@@ -15,8 +15,8 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _takePhoto() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? photo = await _picker.pickImage(source: source);
 
     if (photo == null || !mounted) return;
 
@@ -24,6 +24,66 @@ class _CameraScreenState extends State<CameraScreen> {
       MaterialPageRoute(
         builder: (context) => PhotoPreviewScreen(imagePath: photo.path),
       ),
+    );
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.darkChocolate,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Text(
+                    'Choose Image',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt_outlined, color: AppColors.antiqueGold),
+                  title: const Text('Take Photo'),
+                  subtitle: const Text('Capture a new coffee cup'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library_outlined, color: AppColors.antiqueGold),
+                  title: const Text('Choose from Gallery'),
+                  subtitle: const Text('Use an existing photo'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -66,8 +126,8 @@ class _CameraScreenState extends State<CameraScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _takePhoto,
-                  child: const Text('Take Photo'),
+                  onPressed: _showImageSourceSheet,
+                  child: const Text('Capture Cup'),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
