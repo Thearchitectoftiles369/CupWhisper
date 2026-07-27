@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "180766156374",
+    "project_id": "cupwhisper-3c08f",
+    "storage_bucket": "cupwhisper-3c08f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:180766156374:android:cf565b78299819e11efdf7",
+        "android_client_info": {
+          "package_name": "com.cupwhisper.cupwhisper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI2kxTCPUjXAk8G_3vUSO3C3oOEOpKTi4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
