@@ -32,6 +32,24 @@ class UserRepository {
       'storyteller': storyteller.id,
     });
   }
+
+  Future<void> saveReading({
+    required String uid,
+    required Storyteller storyteller,
+    required AppLanguage language,
+    required String result,
+  }) async {
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('readings')
+        .add({
+      'storyteller': storyteller.id,
+      'language': language.code,
+      'result': result,
+      'date': FieldValue.serverTimestamp(),
+    });
+  }
 }
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {
