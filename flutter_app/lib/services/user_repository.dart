@@ -1,0 +1,39 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'app_language.dart';
+import 'ai_models.dart';
+
+class UserRepository {
+  UserRepository(this._firestore);
+
+  final FirebaseFirestore _firestore;
+
+  Future<void> ensureUserDocument(String uid) async {
+    final ref = _firestore.collection('users').doc(uid);
+    final snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      await ref.set({
+        'language': AppLanguage.english.code,
+        'storyteller': null,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  Future<void> updateLanguage(String uid, AppLanguage language) async {
+    await _firestore.collection('users').doc(uid).update({
+      'language': language.code,
+    });
+  }
+
+  Future<void> updateLastStoryteller(String uid, Storyteller storyteller) async {
+    await _firestore.collection('users').doc(uid).update({
+      'storyteller': storyteller.id,
+    });
+  }
+}
+
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  return UserRepository(FirebaseFirestore.instance);
+});
