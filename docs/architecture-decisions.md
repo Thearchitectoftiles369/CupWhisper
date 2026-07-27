@@ -56,3 +56,47 @@ current Termux-only development environment.
 continues with the AI Service Layer, real AI integration, and UI polishing.
 Reading Credits will be picked back up once a server-side mutation path
 (Cloud Functions or equivalent) is in place.
+
+
+---
+
+## AD-004 — 🔒 Locked — AI Requests Only Through a Secured Backend
+
+All AI requests (Gemini or any future model) are executed exclusively
+through a backend service. The Flutter mobile app never communicates
+directly with Gemini (or any AI provider) and never embeds an AI API key.
+
+**Chosen backend: a self-hosted FastAPI service**, not Firebase Cloud
+Functions, for this phase — chosen because the developer already has
+working FastAPI experience from other projects, avoiding a dependency on
+Cloud Functions' Blaze-plan and deployment requirements before they're
+otherwise needed.
+
+**Target architecture:**
+
+```
+Flutter -> FastAPI -> Gemini -> FastAPI -> Flutter
+```
+
+FastAPI is responsible for: holding the Gemini API key server-side, image
+validation, rate limiting, logging, prompt construction per storyteller
+personality (see product-vision.md), and writing results to Firestore.
+
+**Why this matters beyond Gemini:** this decision is model-agnostic. If
+CupWhisper later switches to OpenAI, Claude, or another provider, only the
+backend changes — the mobile app's contract with the backend stays the
+same.
+
+**Future expansion path (not required to build now):**
+
+```
+Flutter -> FastAPI
+1. Photo validity check
+2. Cup detection
+3. Interior visibility detection
+4. Symbol detection
+5. Prompt Builder
+6. Gemini
+7. Write to Firestore
+8. Return result
+```
