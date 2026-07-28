@@ -5,6 +5,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
 import '../../services/app_strings.dart';
 import '../reading/camera_screen.dart';
+import 'storyteller_greeting_screen.dart';
 
 class ChooseStorytellerScreen extends ConsumerWidget {
   const ChooseStorytellerScreen({super.key});
@@ -26,7 +27,7 @@ class ChooseStorytellerScreen extends ConsumerWidget {
           children: [
             _StorytellerCard(
               flag: Storyteller.bulgarian.flag,
-              name: ref.tr('bulgarian_name'),
+              name: Storyteller.bulgarian.displayName,
               descriptionKey: 'bulgarian_desc',
               enabled: true,
               storyteller: Storyteller.bulgarian,
@@ -34,7 +35,7 @@ class ChooseStorytellerScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             _StorytellerCard(
               flag: Storyteller.turkish.flag,
-              name: ref.tr('turkish_name'),
+              name: Storyteller.turkish.displayName,
               descriptionKey: 'turkish_desc',
               enabled: true,
               storyteller: Storyteller.turkish,
@@ -93,11 +94,14 @@ class _StorytellerCard extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: enabled && storyteller != null
                     ? () {
+                        final target = storyteller == Storyteller.bulgarian
+                            ? StorytellerGreetingScreen(
+                                storyteller: storyteller!,
+                              )
+                            : CameraScreen(storyteller: storyteller!);
+
                         Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                CameraScreen(storyteller: storyteller!),
-                          ),
+                          MaterialPageRoute(builder: (context) => target),
                         );
                       }
                     : null,
