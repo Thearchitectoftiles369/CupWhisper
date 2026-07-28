@@ -82,3 +82,87 @@ differentiator and should be treated as a first-class design goal, not a
 
 This principle should directly inform the real AI prompt design in Step 13+
 (one prompt template per storyteller, not one template + six translations).
+
+---
+
+## Treat a Friend (Future Feature)
+
+**Category:** Viral Growth / Emotional Engagement
+**Priority:** After Cloud Functions and Reading Credits (AD-003) are in place —
+this feature is fundamentally a credit-transfer mechanism and must not be
+built on a temporary, insecure foundation.
+
+### Goal
+
+Let a user "treat" someone else to a coffee reading, the way you'd buy a
+friend an actual coffee. The gift is framed as an emotional gesture, not a
+referral mechanic — the growth effect is a side benefit, not the pitch.
+
+### Flow
+
+1. User taps **"☕ Treat a Friend with Coffee"**.
+2. They choose a recipient: phone number, email, or a contact from their
+   phone.
+3. They can add a short personal message, e.g.:
+   *"Yulian ❤️ Today I'm treating you to a coffee. Let's see what stories
+   your cup holds."*
+4. The app sends a message to the recipient.
+
+### If the recipient does NOT have CupWhisper
+
+They receive a message like:
+
+> ☕ Yulian treated you to a coffee.
+> Every cup holds its own secret.
+> Tap here to discover what the fortune teller will reveal.
+>
+> [ Google Play / App Store link ]
+
+### If the recipient already has CupWhisper
+
+They receive an in-app notification:
+
+> ☕
+> Yulian treated you to a coffee.
+> One of the fortune tellers is waiting for you.
+> You have a gifted reading.
+>
+> [ Begin the Ritual ]
+
+### Key Rules
+
+- **The gift does not expire.** It sits in the recipient's account like a
+  voucher until they choose to use it.
+- **The recipient pays nothing** for the gifted reading. After using it,
+  they decide on their own whether they want more.
+- Personal messages should support occasion-based variants (Christmas,
+  birthday, new job, etc.), e.g.:
+  - 🎄 "Merry Christmas! I'm gifting you a mystical coffee."
+  - ☕ "Happy Birthday! Treating you to a coffee."
+  - "Good luck! Let your cup tell a story."
+
+### Why This Matters
+
+This is a viral mechanism that asks nothing of the sender except a warm
+gesture — no ads, no pressure, no discount codes. Recipients aren't limited
+to "friends" in the app sense: mother, grandmother, spouse, partner,
+colleague. People start gifting each other an emotion, not an AI feature or
+a credit. Each new user can organically bring in the next.
+
+### Technical Dependencies (why this waits)
+
+- **Credit transfer** is a variant of the Reading Credits system (AD-001),
+  which is intentionally paused (AD-003) until a secure server-side mutation
+  path (Cloud Functions or equivalent) exists. Gifting a reading must not
+  bypass that protection.
+- **Sending email/SMS** requires a new backend capability (e.g. SendGrid for
+  email, Twilio or equivalent for SMS), each with a per-message cost to
+  budget for.
+- **Deep linking** into a specific gifted reading requires a dynamic-link
+  solution. Firebase Dynamic Links is being sunset by Google, so this needs
+  an alternative (e.g. Branch.io or a custom domain-based link scheme) —
+  to be decided when this feature is actually built, not before.
+
+Building this now, before Cloud Functions exist, would mean either violating
+AD-003 or writing a temporary insecure version that gets thrown away later.
+Revisit once the Reading Credits server-side infrastructure is live.
