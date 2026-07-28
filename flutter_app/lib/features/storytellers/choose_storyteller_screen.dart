@@ -4,7 +4,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
 import '../../services/app_strings.dart';
-import '../reading/camera_screen.dart';
 import 'storyteller_greeting_screen.dart';
 
 class ChooseStorytellerScreen extends ConsumerWidget {
@@ -94,14 +93,12 @@ class _StorytellerCard extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: enabled && storyteller != null
                     ? () {
-                        final target = storyteller == Storyteller.bulgarian
-                            ? StorytellerGreetingScreen(
-                                storyteller: storyteller!,
-                              )
-                            : CameraScreen(storyteller: storyteller!);
-
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => target),
+                          MaterialPageRoute(
+                            builder: (context) => StorytellerGreetingScreen(
+                              storyteller: storyteller!,
+                            ),
+                          ),
                         );
                       }
                     : null,

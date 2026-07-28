@@ -14,6 +14,11 @@ class StorytellerGreetingScreen extends StatefulWidget {
 
 class _StorytellerGreetingScreenState
     extends State<StorytellerGreetingScreen> {
+  static const Map<Storyteller, String> _greetingImages = {
+    Storyteller.bulgarian: 'assets/images/bulgarian_greeting.png',
+    Storyteller.turkish: 'assets/images/turkish_greeting.png',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -29,11 +34,14 @@ class _StorytellerGreetingScreenState
 
   @override
   Widget build(BuildContext context) {
+    final imagePath = _greetingImages[widget.storyteller] ??
+        'assets/images/bulgarian_greeting.png';
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
         child: Image.asset(
-          'assets/images/bulgarian_greeting.png',
+          imagePath,
           fit: BoxFit.contain,
           width: double.infinity,
         ),

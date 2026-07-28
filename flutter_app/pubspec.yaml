@@ -66,6 +66,7 @@ flutter:
 
   assets:
     - assets/images/bulgarian_greeting.png
+    - assets/images/turkish_greeting.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
