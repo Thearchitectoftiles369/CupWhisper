@@ -23,7 +23,7 @@ class ProcessingScreen extends ConsumerStatefulWidget {
 }
 
 class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
-  final AIService _aiService = MockAIService();
+  final AIService _aiService = BackendAIService();
 
   @override
   void initState() {

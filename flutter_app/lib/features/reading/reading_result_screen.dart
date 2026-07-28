@@ -20,28 +20,38 @@ class ReadingResultScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                result.storyteller.flag,
-                style: const TextStyle(fontSize: 64),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                ref.tr('${result.storyteller.id}_name'),
-                style: textTheme.titleMedium?.copyWith(
-                  color: AppColors.warmCreamMuted,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        result.storyteller.flag,
+                        style: const TextStyle(fontSize: 64),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        ref.tr('${result.storyteller.id}_name'),
+                        style: textTheme.titleMedium?.copyWith(
+                          color: AppColors.warmCreamMuted,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        result.story,
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: AppColors.warmCream,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                result.story,
-                style: textTheme.bodyLarge?.copyWith(
-                  color: AppColors.warmCream,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: AppSpacing.md),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
