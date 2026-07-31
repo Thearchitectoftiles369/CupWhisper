@@ -31,10 +31,20 @@ def build_prompt(storyteller: str, language: str) -> str:
     return (
         f"{personality}\n\n"
         f"Look at the attached photo of a coffee cup with grounds left inside "
-        f"after drinking. Based on the shapes and patterns you see, write a "
-        f"short, evocative fortune-telling reading (4-6 sentences). This is "
-        f"for entertainment purposes only, not literal prediction.\n\n"
-        f"Write your entire response in {language_name}, staying fully in "
-        f"character. Do not mention that this is for entertainment purposes "
-        f"in your response - that framing is handled elsewhere in the app."
+        f"after drinking. Identify 3 to 5 distinct shapes or symbols you can "
+        f"see in the grounds (for example: a bird, a heart, a path, a mountain, "
+        f"a ring, a key, a star, a tree, an eye, a wave, and so on).\n\n"
+        f"For each symbol, provide:\n"
+        f"- A short, evocative spoken phrase (5-12 words) in character, as if "
+        f"you are pointing it out to the person live, e.g. \"I see a bird "
+        f"here...\" or \"Look, a path begins to form...\"\n"
+        f"- The normalized bounding box of where that shape appears in the "
+        f"image: x, y (top-left corner, 0.0 to 1.0) and width, height (0.0 to "
+        f"1.0), relative to the full image dimensions.\n\n"
+        f"Write every phrase in {language_name}, fully in character. This is "
+        f"for entertainment purposes only - do not mention that framing in "
+        f"your response.\n\n"
+        f"Respond ONLY with valid JSON in this exact structure, no other text:\n"
+        f'{{"symbols": [{{"phrase": "...", "x": 0.0, "y": 0.0, "width": 0.0, '
+        f'"height": 0.0}}]}}'
     )

@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from google import genai
@@ -39,6 +40,15 @@ async def create_reading(
             types.Part.from_bytes(data=image_bytes, mime_type=image.content_type),
             prompt,
         ],
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+        ),
     )
 
-    return {"story": response.text}
+    try:
+        parsed = json.loads(response.text)
+        symbols = parsed.get("symbols", [])
+    except (json.JSONDecodeError, AttributeError):
+        symbols = []
+
+    return {"symbols": symbols}
