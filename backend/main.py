@@ -48,7 +48,9 @@ async def create_reading(
     try:
         parsed = json.loads(response.text)
         symbols = parsed.get("symbols", [])
+        conclusion = parsed.get("conclusion", "")
     except (json.JSONDecodeError, AttributeError):
         symbols = []
+        conclusion = ""
 
-    return {"symbols": symbols}
+    return {"symbols": symbols, "conclusion": conclusion}
