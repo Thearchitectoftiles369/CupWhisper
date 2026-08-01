@@ -6,6 +6,7 @@ from google import genai
 from google.genai import types
 
 from prompts import build_prompt
+from tts import synthesize_speech
 
 load_dotenv()
 
@@ -53,4 +54,13 @@ async def create_reading(
         symbols = []
         conclusion = ""
 
-    return {"symbols": symbols, "conclusion": conclusion}
+    for symbol in symbols:
+        symbol["audio"] = synthesize_speech(client, storyteller, symbol.get("phrase", ""))
+
+    conclusion_audio = synthesize_speech(client, storyteller, conclusion) if conclusion else ""
+
+    return {
+        "symbols": symbols,
+        "conclusion": conclusion,
+        "conclusion_audio": conclusion_audio,
+    }
