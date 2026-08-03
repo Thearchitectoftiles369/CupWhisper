@@ -14,6 +14,7 @@ app = FastAPI(title="CupWhisper AI Gateway")
 
 api_key = os.environ.get("GEMINI_API_KEY")
 model_name = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+tts_enabled = os.environ.get("ENABLE_TTS", "false").lower() == "true"
 
 client = genai.Client(api_key=api_key) if api_key else None
 
@@ -54,10 +55,14 @@ async def create_reading(
         symbols = []
         conclusion = ""
 
-    for symbol in symbols:
-        symbol["audio"] = synthesize_speech(client, storyteller, symbol.get("phrase", ""))
-
-    conclusion_audio = synthesize_speech(client, storyteller, conclusion) if conclusion else ""
+    conclusion_audio = ""
+    if tts_enabled:
+        for symbol in symbols:
+            symbol["audio"] = synthesize_speech(client, storyteller, symbol.get("phrase", ""))
+        conclusion_audio = synthesize_speech(client, storyteller, conclusion) if conclusion else ""
+    else:
+        for symbol in symbols:
+            symbol["audio"] = ""
 
     return {
         "symbols": symbols,

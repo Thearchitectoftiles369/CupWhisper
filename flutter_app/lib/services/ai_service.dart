@@ -44,12 +44,19 @@ class BackendAIService implements AIService {
 
     final Map<String, dynamic> body =
         jsonDecode(response.body) as Map<String, dynamic>;
-    final story =
-        body['story'] as String? ?? 'The cup remains silent for now.';
+    final symbolsJson = body['symbols'] as List<dynamic>? ?? [];
+    final symbols = symbolsJson
+        .map((s) => ReadingSymbol.fromJson(s as Map<String, dynamic>))
+        .toList();
+    final conclusion = body['conclusion'] as String? ?? '';
+    final conclusionAudio = body['conclusion_audio'] as String? ?? '';
 
     return ReadingResult(
       storyteller: storyteller,
-      story: story,
+      imagePath: imagePath,
+      symbols: symbols,
+      conclusion: conclusion,
+      conclusionAudioBase64: conclusionAudio,
     );
   }
 }

@@ -6,7 +6,7 @@ import '../../services/app_language.dart';
 import '../../services/app_strings.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_repository.dart';
-import 'reading_result_screen.dart';
+import 'symbol_reveal_screen.dart';
 
 class ProcessingScreen extends ConsumerStatefulWidget {
   const ProcessingScreen({
@@ -48,7 +48,7 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
         uid: user.uid,
         storyteller: widget.storyteller,
         language: language,
-        result: result.story,
+        result: '${result.symbols.map((s) => s.phrase).join(' ')} ${result.conclusion}',
       );
     }
 
@@ -56,7 +56,7 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => ReadingResultScreen(result: result),
+        builder: (context) => SymbolRevealScreen(result: result),
       ),
     );
   }
