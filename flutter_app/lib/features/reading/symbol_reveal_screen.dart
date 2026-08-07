@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../services/ai_models.dart';
 import '../../services/app_strings.dart';
+import '../../services/native_audio_player.dart';
 import '../home/home_screen.dart';
 
 class SymbolRevealScreen extends ConsumerStatefulWidget {
@@ -23,6 +25,7 @@ class _SymbolRevealScreenState extends ConsumerState<SymbolRevealScreen>
   late final AnimationController _revealController;
   int _currentIndex = 0;
   bool _finished = false;
+  bool _readyForButton = false;
   ui.Image? _decodedImage;
 
   @override
@@ -30,7 +33,7 @@ class _SymbolRevealScreenState extends ConsumerState<SymbolRevealScreen>
     super.initState();
     _revealController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1300),
+      duration: const Duration(milliseconds: 800),
     );
     _decodeImage();
   }
@@ -44,20 +47,41 @@ class _SymbolRevealScreenState extends ConsumerState<SymbolRevealScreen>
     _startSequence();
   }
 
-  Future<void> _startSequence() async {
-    if (widget.result.symbols.isEmpty) {
-      setState(() => _finished = true);
+  Future<void> _playAudio(String base64Audio) async {
+    if (base64Audio.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 2200));
       return;
     }
-    await _revealController.forward(from: 0);
-    await Future.delayed(const Duration(milliseconds: 2200));
+    try {
+      final bytes = base64Decode(base64Audio);
+      await NativeAudioPlayer.play(bytes);
+    } catch (_) {
+      await Future.delayed(const Duration(milliseconds: 2200));
+    }
+  }
+
+  Future<void> _startSequence() async {
+    final symbols = widget.result.symbols;
+    if (symbols.isEmpty) {
+      setState(() {
+        _finished = true;
+        _readyForButton = true;
+      });
+      return;
+    }
+
+    _revealController.forward(from: 0);
+    await _playAudio(symbols[_currentIndex].audioBase64);
     if (!mounted) return;
 
-    if (_currentIndex < widget.result.symbols.length - 1) {
+    if (_currentIndex < symbols.length - 1) {
       setState(() => _currentIndex++);
       _startSequence();
     } else {
       setState(() => _finished = true);
+      await _playAudio(widget.result.conclusionAudioBase64);
+      if (!mounted) return;
+      setState(() => _readyForButton = true);
     }
   }
 
@@ -144,7 +168,7 @@ class _SymbolRevealScreenState extends ConsumerState<SymbolRevealScreen>
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              if (_finished)
+              if (_readyForButton)
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
