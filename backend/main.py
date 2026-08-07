@@ -1,5 +1,6 @@
 import os
 import json
+import asyncio
 from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from google import genai
@@ -57,9 +58,23 @@ async def create_reading(
 
     conclusion_audio = ""
     if tts_enabled:
-        for symbol in symbols:
-            symbol["audio"] = synthesize_speech(client, storyteller, symbol.get("phrase", ""))
-        conclusion_audio = synthesize_speech(client, storyteller, conclusion) if conclusion else ""
+        loop = asyncio.get_event_loop()
+        tasks = [
+            loop.run_in_executor(None, synthesize_speech, client, storyteller, s.get("phrase", ""))
+            for s in symbols
+        ]
+        conclusion_task = (
+            loop.run_in_executor(None, synthesize_speech, client, storyteller, conclusion)
+            if conclusion
+            else None
+        )
+
+        results = await asyncio.gather(*tasks)
+        for symbol, audio in zip(symbols, results):
+            symbol["audio"] = audio
+
+        if conclusion_task:
+            conclusion_audio = await conclusion_task
     else:
         for symbol in symbols:
             symbol["audio"] = ""
