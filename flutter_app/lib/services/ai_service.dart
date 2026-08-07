@@ -13,7 +13,7 @@ abstract class AIService {
 }
 
 class BackendAIService implements AIService {
-  static const String _baseUrl = 'http://127.0.0.1:8000';
+  static const String _baseUrl = 'https://cupwhisper-backend-180766156374.europe-west1.run.app';
 
   @override
   Future<ReadingResult> generateReading({

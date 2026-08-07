@@ -68,6 +68,8 @@ flutter:
   assets:
     - assets/images/bulgarian_greeting.png
     - assets/images/turkish_greeting.png
+    - assets/audio/bulgarian_greeting_audio.wav
+    - assets/audio/turkish_greeting_audio.wav
 
   # To add assets to your application, add an assets section, like this:
   # assets:

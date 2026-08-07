@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/ai_models.dart';
@@ -25,9 +26,25 @@ class ProcessingScreen extends ConsumerStatefulWidget {
 class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   final AIService _aiService = BackendAIService();
 
+  static const List<String> _messageKeys = [
+    'processing_msg_1',
+    'processing_msg_2',
+    'processing_msg_3',
+    'processing_msg_4',
+  ];
+
+  int _messageIndex = 0;
+  Timer? _messageTimer;
+
   @override
   void initState() {
     super.initState();
+    _messageTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted) return;
+      setState(() {
+        _messageIndex = (_messageIndex + 1) % _messageKeys.length;
+      });
+    });
     _generateReading();
   }
 
@@ -62,6 +79,12 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   }
 
   @override
+  void dispose() {
+    _messageTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
@@ -77,10 +100,15 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
                 ref.tr('reading_symbols'),
                 style: textTheme.headlineMedium,
               ),
-              const SizedBox(height: 8),
-              Text(
-                ref.tr('please_wait'),
-                style: textTheme.bodyMedium,
+              const SizedBox(height: 12),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                child: Text(
+                  ref.tr(_messageKeys[_messageIndex]),
+                  key: ValueKey(_messageIndex),
+                  style: textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
               ),
               const SizedBox(height: 24),
               const CircularProgressIndicator(),
