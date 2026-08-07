@@ -16,9 +16,22 @@ class UserRepository {
       await ref.set({
         'language': AppLanguage.english.code,
         'storyteller': null,
+        'hasSeenDisclosure': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
     }
+  }
+
+  Future<bool> hasSeenDisclosure(String uid) async {
+    final snapshot = await _firestore.collection('users').doc(uid).get();
+    final data = snapshot.data();
+    return data?['hasSeenDisclosure'] as bool? ?? false;
+  }
+
+  Future<void> markDisclosureSeen(String uid) async {
+    await _firestore.collection('users').doc(uid).update({
+      'hasSeenDisclosure': true,
+    });
   }
 
   Future<void> updateLanguage(String uid, AppLanguage language) async {

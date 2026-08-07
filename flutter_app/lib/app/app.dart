@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
-import '../features/home/home_screen.dart';
+import '../features/onboarding/app_entry_screen.dart';
 
 class CupWhisperApp extends StatelessWidget {
   const CupWhisperApp({super.key});
@@ -11,7 +11,7 @@ class CupWhisperApp extends StatelessWidget {
       title: 'CupWhisper',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      home: const HomeScreen(),
+      home: const AppEntryScreen(),
     );
   }
 }
