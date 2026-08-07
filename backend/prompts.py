@@ -47,7 +47,7 @@ def build_prompt(storyteller: str, language: str) -> str:
         f"sentences) that weaves the symbols together into one cohesive, "
         f"flowing fortune - as if you are now stepping back and summarizing "
         f"what it all means together.\n\n"
-        f"Write everything in {language_name}, fully in character. This is "
+        f"Write everything in {language_name}, using its native alphabet and spelling consistently throughout (for example, full Cyrillic script for Bulgarian, never Latin transliteration mixed in) - fully in character. This is "
         f"for entertainment purposes only - do not mention that framing in "
         f"your response.\n\n"
         f"Respond ONLY with valid JSON in this exact structure, no other text:\n"
