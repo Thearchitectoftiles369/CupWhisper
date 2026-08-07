@@ -7,7 +7,7 @@ STORYTELLER_VOICES = {
     "bulgarian": {"voice": "Aoede", "style": None},
     "turkish": {
         "voice": "Despina",
-        "style": "Say this at a relaxed, unhurried pace, in a low, deep, mysterious tone:",
+        "style": "Say this at a natural, moderately brisk pace, in a low, deep, mysterious tone:",
     },
 }
 
