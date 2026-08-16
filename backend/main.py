@@ -45,6 +45,7 @@ async def create_reading(
         ],
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
+            thinking_config=types.ThinkingConfig(thinking_budget=0),
         ),
     )
 
