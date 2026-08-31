@@ -51,31 +51,40 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   Future<void> _generateReading() async {
     final language = ref.read(appLanguageProvider);
 
-    final result = await _aiService.generateReading(
-      imagePath: widget.imagePath,
-      storyteller: widget.storyteller,
-      language: language,
-    );
-
-    final user = ref.read(authServiceProvider).currentUser;
-    if (user != null) {
-      final repo = ref.read(userRepositoryProvider);
-      await repo.updateLastStoryteller(user.uid, widget.storyteller);
-      await repo.saveReading(
-        uid: user.uid,
+    try {
+      final result = await _aiService.generateReading(
+        imagePath: widget.imagePath,
         storyteller: widget.storyteller,
         language: language,
-        result: '${result.symbols.map((s) => s.phrase).join(' ')} ${result.conclusion}',
       );
+
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user != null) {
+        final repo = ref.read(userRepositoryProvider);
+        await repo.updateLastStoryteller(user.uid, widget.storyteller);
+      }
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => SymbolRevealScreen(result: result),
+        ),
+      );
+    } on NoCreditsException {
+      if (!mounted) return;
+      _showErrorAndGoBack(ref.tr('no_credits_message'));
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorAndGoBack(ref.tr('reading_error_message'));
     }
+  }
 
-    if (!mounted) return;
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => SymbolRevealScreen(result: result),
-      ),
+  void _showErrorAndGoBack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
+    Navigator.of(context).pop();
   }
 
   @override

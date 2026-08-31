@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'ai_models.dart';
@@ -12,6 +13,10 @@ abstract class AIService {
   });
 }
 
+class NoCreditsException implements Exception {
+  const NoCreditsException();
+}
+
 class BackendAIService implements AIService {
   static const String _baseUrl = 'https://cupwhisper-backend-180766156374.europe-west1.run.app';
 
@@ -21,8 +26,15 @@ class BackendAIService implements AIService {
     required Storyteller storyteller,
     required AppLanguage language,
   }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
+    }
+    final idToken = await user.getIdToken();
+
     final uri = Uri.parse('$_baseUrl/reading');
     final request = http.MultipartRequest('POST', uri)
+      ..headers['Authorization'] = 'Bearer $idToken'
       ..fields['storyteller'] = storyteller.id
       ..fields['language'] = language.code
       ..files.add(
@@ -35,6 +47,10 @@ class BackendAIService implements AIService {
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 402) {
+      throw const NoCreditsException();
+    }
 
     if (response.statusCode != 200) {
       throw Exception(

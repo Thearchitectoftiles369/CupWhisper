@@ -77,6 +77,22 @@ class AppStrings {
       'fr': "J'ai compris",
       'es': 'Entendido',
     },
+    'no_credits_message': {
+      'en': "You're out of reading credits. Check back soon!",
+      'bg': 'Нямаш повече кредити за гадаене. Провери отново скоро!',
+      'tr': 'Fal hakkın kalmadı. Yakında tekrar kontrol et!',
+      'de': 'Du hast keine Lesungen mehr übrig. Schau bald wieder vorbei!',
+      'fr': "Tu n'as plus de lectures disponibles. Reviens bientôt !",
+      'es': 'Te has quedado sin lecturas. ¡Vuelve pronto!',
+    },
+    'reading_error_message': {
+      'en': 'Something went wrong. Please try again.',
+      'bg': 'Нещо се обърка. Моля, опитай отново.',
+      'tr': 'Bir şeyler ters gitti. Lütfen tekrar dene.',
+      'de': 'Etwas ist schiefgelaufen. Bitte versuche es erneut.',
+      'fr': "Une erreur s'est produite. Veuillez réessayer.",
+      'es': 'Algo salió mal. Por favor, inténtalo de nuevo.',
+    },
     'coming_soon': {
       'en': 'Coming Soon',
       'bg': 'Очаквайте скоро',
