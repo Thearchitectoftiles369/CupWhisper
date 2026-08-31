@@ -2,12 +2,14 @@ import os
 import json
 import asyncio
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
 from google import genai
 from google.genai import types
 
 from prompts import build_prompt
 from tts import synthesize_speech
+from auth import verify_token
+from credits import consume_credit, save_reading
 
 load_dotenv()
 
@@ -30,9 +32,15 @@ async def create_reading(
     storyteller: str = Form(...),
     language: str = Form(...),
     image: UploadFile = File(...),
+    uid: str = Depends(verify_token),
 ):
     if client is None:
         raise HTTPException(status_code=500, detail="Gemini client not configured")
+
+    try:
+        remaining_credits = consume_credit(uid)
+    except ValueError:
+        raise HTTPException(status_code=402, detail="No reading credits remaining")
 
     image_bytes = await image.read()
     prompt = build_prompt(storyteller, language)
@@ -80,8 +88,12 @@ async def create_reading(
         for symbol in symbols:
             symbol["audio"] = ""
 
+    full_text = " ".join(s.get("phrase", "") for s in symbols) + " " + conclusion
+    save_reading(uid, storyteller, language, full_text)
+
     return {
         "symbols": symbols,
         "conclusion": conclusion,
         "conclusion_audio": conclusion_audio,
+        "remaining_credits": remaining_credits,
     }
