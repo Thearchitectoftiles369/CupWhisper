@@ -14,7 +14,7 @@ def get_db():
 def _consume_credit_txn(transaction, user_ref):
     snapshot = user_ref.get(transaction=transaction)
     data = snapshot.to_dict() or {}
-    credits = data.get("readingCredits", 1)
+    credits = data.get("readingCredits", 5)
 
     if credits <= 0:
         raise ValueError("NO_CREDITS")
