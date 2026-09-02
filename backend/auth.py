@@ -2,11 +2,19 @@ import firebase_admin
 from firebase_admin import auth as firebase_auth
 from fastapi import Header, HTTPException
 
-if not firebase_admin._apps:
-    firebase_admin.initialize_app()
+_initialized = False
+
+
+def _ensure_initialized():
+    global _initialized
+    if not _initialized:
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app()
+        _initialized = True
 
 
 def verify_token(authorization: str = Header(...)) -> str:
+    _ensure_initialized()
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing bearer token")
     token = authorization.split(" ", 1)[1]
