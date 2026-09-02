@@ -38,7 +38,7 @@ def build_prompt(storyteller: str, language: str) -> str:
         f"- A short, evocative spoken phrase (8-15 words) in character, as if "
         f"you are pointing it out to the person live, e.g. \"I see a bird "
         f"here, and it tells me news is coming...\"\n"
-        f"- A rough outline of the shape as a series of 8 to 14 points tracing "
+        f"- A rough outline of the shape as a series of 6 to 10 points tracing "
         f"its silhouette, in order around the shape (like connecting dots to "
         f"draw it). Each point is normalized x, y (0.0 to 1.0) relative to the "
         f"full image dimensions. The outline does not need to be perfectly "

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:image/image.dart' as img;
 import 'ai_models.dart';
 import 'app_language.dart';
 
@@ -20,6 +22,18 @@ class NoCreditsException implements Exception {
 class BackendAIService implements AIService {
   static const String _baseUrl = 'https://cupwhisper-backend-180766156374.europe-west1.run.app';
 
+  Future<List<int>> _compressImage(String imagePath) async {
+    final bytes = await File(imagePath).readAsBytes();
+    final decoded = img.decodeImage(bytes);
+    if (decoded == null) return bytes;
+
+    final resized = decoded.width > 1280
+        ? img.copyResize(decoded, width: 1280)
+        : decoded;
+
+    return img.encodeJpg(resized, quality: 85);
+  }
+
   @override
   Future<ReadingResult> generateReading({
     required String imagePath,
@@ -32,15 +46,18 @@ class BackendAIService implements AIService {
     }
     final idToken = await user.getIdToken();
 
+    final compressedBytes = await _compressImage(imagePath);
+
     final uri = Uri.parse('$_baseUrl/reading');
     final request = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $idToken'
       ..fields['storyteller'] = storyteller.id
       ..fields['language'] = language.code
       ..files.add(
-        await http.MultipartFile.fromPath(
+        http.MultipartFile.fromBytes(
           'image',
-          imagePath,
+          compressedBytes,
+          filename: 'cup.jpg',
           contentType: MediaType('image', 'jpeg'),
         ),
       );
