@@ -37,25 +37,30 @@ async def create_reading(
     if client is None:
         raise HTTPException(status_code=500, detail="Gemini client not configured")
 
-    try:
-        remaining_credits = consume_credit(uid)
-    except ValueError:
-        raise HTTPException(status_code=402, detail="No reading credits remaining")
-
     image_bytes = await image.read()
     prompt = build_prompt(storyteller, language)
 
-    response = client.models.generate_content(
-        model=model_name,
-        contents=[
-            types.Part.from_bytes(data=image_bytes, mime_type=image.content_type),
-            prompt,
-        ],
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            thinking_config=types.ThinkingConfig(thinking_budget=0),
-        ),
-    )
+    def call_gemini():
+        return client.models.generate_content(
+            model=model_name,
+            contents=[
+                types.Part.from_bytes(data=image_bytes, mime_type=image.content_type),
+                prompt,
+            ],
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+            ),
+        )
+
+    loop = asyncio.get_event_loop()
+    credit_task = loop.run_in_executor(None, consume_credit, uid)
+    gemini_task = loop.run_in_executor(None, call_gemini)
+
+    try:
+        remaining_credits, response = await asyncio.gather(credit_task, gemini_task)
+    except ValueError:
+        raise HTTPException(status_code=402, detail="No reading credits remaining")
 
     try:
         parsed = json.loads(response.text)
@@ -67,8 +72,7 @@ async def create_reading(
 
     conclusion_audio = ""
     if tts_enabled:
-        loop = asyncio.get_event_loop()
-        tasks = [
+        tts_tasks = [
             loop.run_in_executor(None, synthesize_speech, client, storyteller, s.get("phrase", ""))
             for s in symbols
         ]
@@ -78,7 +82,7 @@ async def create_reading(
             else None
         )
 
-        results = await asyncio.gather(*tasks)
+        results = await asyncio.gather(*tts_tasks)
         for symbol, audio in zip(symbols, results):
             symbol["audio"] = audio
 
