@@ -14,11 +14,9 @@ def get_db():
 def _consume_credit_txn(transaction, user_ref):
     snapshot = user_ref.get(transaction=transaction)
     data = snapshot.to_dict() or {}
-    credits = data.get("readingCredits", 5)
-
+    credits = data.get("readingCredits", 0)
     if credits <= 0:
         raise ValueError("NO_CREDITS")
-
     transaction.set(user_ref, {"readingCredits": credits - 1}, merge=True)
     return credits - 1
 
@@ -28,6 +26,30 @@ def consume_credit(uid: str) -> int:
     user_ref = db.collection("users").document(uid)
     transaction = db.transaction()
     return _consume_credit_txn(transaction, user_ref)
+
+
+@firestore.transactional
+def _claim_free_reading_txn(transaction, user_ref):
+    snapshot = user_ref.get(transaction=transaction)
+    data = snapshot.to_dict() or {}
+    if data.get("hasUsedFreeReading", False):
+        raise ValueError("FREE_READING_USED")
+    transaction.set(user_ref, {"hasUsedFreeReading": True}, merge=True)
+    return True
+
+
+def claim_free_reading(uid: str) -> bool:
+    db = get_db()
+    user_ref = db.collection("users").document(uid)
+    transaction = db.transaction()
+    return _claim_free_reading_txn(transaction, user_ref)
+
+
+def get_reading_credits(uid: str) -> int:
+    db = get_db()
+    snapshot = db.collection("users").document(uid).get()
+    data = snapshot.to_dict() or {}
+    return data.get("readingCredits", 0)
 
 
 def save_reading(uid: str, storyteller: str, language: str, result_text: str):

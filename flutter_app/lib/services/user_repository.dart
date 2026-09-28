@@ -45,6 +45,12 @@ class UserRepository {
       'storyteller': storyteller.id,
     });
   }
+
+  Future<bool> hasUsedFreeReading(String uid) async {
+    final snapshot = await _firestore.collection('users').doc(uid).get();
+    final data = snapshot.data();
+    return data?['hasUsedFreeReading'] as bool? ?? false;
+  }
 }
 
 final userRepositoryProvider = Provider<UserRepository>((ref) {

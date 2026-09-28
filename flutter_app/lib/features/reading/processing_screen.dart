@@ -50,15 +50,38 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
 
   Future<void> _generateReading() async {
     final language = ref.read(appLanguageProvider);
+    final user = ref.read(authServiceProvider).currentUser;
 
     try {
-      final result = await _aiService.generateReading(
-        imagePath: widget.imagePath,
-        storyteller: widget.storyteller,
-        language: language,
-      );
+      bool usedFree = true;
+      if (user != null) {
+        final repo = ref.read(userRepositoryProvider);
+        usedFree = await repo.hasUsedFreeReading(user.uid);
+      }
 
-      final user = ref.read(authServiceProvider).currentUser;
+      ReadingResult result;
+      if (!usedFree) {
+        try {
+          result = await _aiService.generateFreeReading(
+            imagePath: widget.imagePath,
+            storyteller: widget.storyteller,
+            language: language,
+          );
+        } on FreeReadingUsedException {
+          result = await _aiService.generateReading(
+            imagePath: widget.imagePath,
+            storyteller: widget.storyteller,
+            language: language,
+          );
+        }
+      } else {
+        result = await _aiService.generateReading(
+          imagePath: widget.imagePath,
+          storyteller: widget.storyteller,
+          language: language,
+        );
+      }
+
       if (user != null) {
         final repo = ref.read(userRepositoryProvider);
         await repo.updateLastStoryteller(user.uid, widget.storyteller);
@@ -96,7 +119,6 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
       body: SafeArea(
         child: Center(

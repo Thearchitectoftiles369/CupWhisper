@@ -24,7 +24,7 @@ class MainActivity : FlutterActivity() {
     private fun playAudio(bytes: ByteArray, result: MethodChannel.Result) {
         Thread {
             try {
-                val file = File(cacheDir, "cupwhisper_audio_${System.currentTimeMillis()}.wav")
+                val file = File(cacheDir, "cupwhisper_audio_${System.currentTimeMillis()}.mp3")
                 file.writeBytes(bytes)
 
                 val mediaPlayer = MediaPlayer()

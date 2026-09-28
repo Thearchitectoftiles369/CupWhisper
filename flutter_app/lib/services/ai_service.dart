@@ -13,10 +13,20 @@ abstract class AIService {
     required Storyteller storyteller,
     required AppLanguage language,
   });
+
+  Future<ReadingResult> generateFreeReading({
+    required String imagePath,
+    required Storyteller storyteller,
+    required AppLanguage language,
+  });
 }
 
 class NoCreditsException implements Exception {
   const NoCreditsException();
+}
+
+class FreeReadingUsedException implements Exception {
+  const FreeReadingUsedException();
 }
 
 class BackendAIService implements AIService {
@@ -26,11 +36,9 @@ class BackendAIService implements AIService {
     final bytes = await File(imagePath).readAsBytes();
     final decoded = img.decodeImage(bytes);
     if (decoded == null) return bytes;
-
     final resized = decoded.width > 1280
         ? img.copyResize(decoded, width: 1280)
         : decoded;
-
     return img.encodeJpg(resized, quality: 85);
   }
 
@@ -45,7 +53,6 @@ class BackendAIService implements AIService {
       throw Exception('User not authenticated');
     }
     final idToken = await user.getIdToken();
-
     final compressedBytes = await _compressImage(imagePath);
 
     final uri = Uri.parse('$_baseUrl/reading');
@@ -68,7 +75,55 @@ class BackendAIService implements AIService {
     if (response.statusCode == 402) {
       throw const NoCreditsException();
     }
+    if (response.statusCode != 200) {
+      throw Exception(
+        'AI backend error: ${response.statusCode} ${response.body}',
+      );
+    }
 
+    final Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
+    final symbolsJson = body['symbols'] as List<dynamic>? ?? [];
+    final symbols = symbolsJson
+        .map((s) => ReadingSymbol.fromJson(s as Map<String, dynamic>))
+        .toList();
+    final conclusion = body['conclusion'] as String? ?? '';
+    final conclusionAudio = body['conclusion_audio'] as String? ?? '';
+
+    return ReadingResult(
+      storyteller: storyteller,
+      imagePath: imagePath,
+      symbols: symbols,
+      conclusion: conclusion,
+      conclusionAudioBase64: conclusionAudio,
+    );
+  }
+
+  @override
+  Future<ReadingResult> generateFreeReading({
+    required String imagePath,
+    required Storyteller storyteller,
+    required AppLanguage language,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('User not authenticated');
+    }
+    final idToken = await user.getIdToken();
+
+    final uri = Uri.parse('$_baseUrl/free-reading');
+    final response = await http.post(
+      uri,
+      headers: {'Authorization': 'Bearer $idToken'},
+      body: {
+        'storyteller': storyteller.id,
+        'language': language.code,
+      },
+    );
+
+    if (response.statusCode == 409) {
+      throw const FreeReadingUsedException();
+    }
     if (response.statusCode != 200) {
       throw Exception(
         'AI backend error: ${response.statusCode} ${response.body}',
