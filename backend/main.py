@@ -7,11 +7,21 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
 from google import genai
 from google.genai import types
+from google.oauth2 import service_account as google_service_account
+from google.auth.transport.requests import Request as GoogleAuthRequest
+import urllib.request as urlreq
+import urllib.error as urlerr
 
 from prompts import build_prompt
 from tts import synthesize_speech
 from auth import verify_token
-from credits import consume_credit, save_reading, claim_free_reading, get_reading_credits
+from credits import (
+    consume_credit,
+    save_reading,
+    claim_free_reading,
+    get_reading_credits,
+    credit_purchase,
+)
 
 load_dotenv()
 
@@ -25,6 +35,10 @@ client = genai.Client(api_key=api_key) if api_key else None
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "free_readings")
 FREE_READINGS: dict = {}
+
+PLAY_PACKAGE_NAME = "com.cupwhisper.cupwhisper"
+PLAY_SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "play-billing-key.json")
+_play_credentials = None
 
 
 def _load_free_readings():
@@ -46,6 +60,33 @@ def _load_free_readings():
 
 
 _load_free_readings()
+
+
+def _get_play_access_token() -> str:
+    global _play_credentials
+    if _play_credentials is None:
+        _play_credentials = google_service_account.Credentials.from_service_account_file(
+            PLAY_SERVICE_ACCOUNT_FILE,
+            scopes=["https://www.googleapis.com/auth/androidpublisher"],
+        )
+    if not _play_credentials.valid:
+        _play_credentials.refresh(GoogleAuthRequest())
+    return _play_credentials.token
+
+
+def _check_play_purchase(product_id: str, purchase_token: str) -> dict:
+    token = _get_play_access_token()
+    url = (
+        f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/"
+        f"{PLAY_PACKAGE_NAME}/purchases/products/{product_id}/tokens/{purchase_token}"
+    )
+    req = urlreq.Request(url, headers={"Authorization": f"Bearer {token}"})
+    try:
+        with urlreq.urlopen(req) as resp:
+            return json.load(resp)
+    except urlerr.HTTPError as e:
+        body = e.read().decode()
+        raise RuntimeError(f"Play verify failed ({e.code}): {body}") from None
 
 
 @app.get("/health")
@@ -84,6 +125,29 @@ async def create_free_reading(
         "conclusion_audio": chosen.get("conclusion_audio", ""),
         "remaining_credits": remaining_credits,
     }
+
+
+@app.post("/verify-purchase")
+async def verify_purchase(
+    purchaseToken: str = Form(...),
+    productId: str = Form(...),
+    uid: str = Depends(verify_token),
+):
+    loop = asyncio.get_event_loop()
+    try:
+        result = await loop.run_in_executor(None, _check_play_purchase, productId, purchaseToken)
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+    if result.get("purchaseState") != 0:
+        raise HTTPException(status_code=402, detail="Purchase not in a valid state")
+
+    try:
+        new_balance = await loop.run_in_executor(None, credit_purchase, uid, purchaseToken)
+    except ValueError:
+        new_balance = await loop.run_in_executor(None, get_reading_credits, uid)
+
+    return {"credited": True, "readingCredits": new_balance}
 
 
 @app.post("/reading")

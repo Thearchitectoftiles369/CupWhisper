@@ -52,6 +52,31 @@ def get_reading_credits(uid: str) -> int:
     return data.get("readingCredits", 0)
 
 
+@firestore.transactional
+def _credit_purchase_txn(transaction, purchase_ref, user_ref):
+    purchase_snapshot = purchase_ref.get(transaction=transaction)
+    if purchase_snapshot.exists:
+        raise ValueError("ALREADY_PROCESSED")
+    user_snapshot = user_ref.get(transaction=transaction)
+    data = user_snapshot.to_dict() or {}
+    current = data.get("readingCredits", 0)
+    new_balance = current + 1
+    transaction.set(user_ref, {"readingCredits": new_balance}, merge=True)
+    transaction.set(purchase_ref, {
+        "uid": user_ref.id,
+        "creditedAt": firestore.SERVER_TIMESTAMP,
+    })
+    return new_balance
+
+
+def credit_purchase(uid: str, purchase_token: str) -> int:
+    db = get_db()
+    user_ref = db.collection("users").document(uid)
+    purchase_ref = db.collection("processedPurchases").document(purchase_token)
+    transaction = db.transaction()
+    return _credit_purchase_txn(transaction, purchase_ref, user_ref)
+
+
 def save_reading(uid: str, storyteller: str, language: str, result_text: str):
     db = get_db()
     db.collection("users").document(uid).collection("readings").add({

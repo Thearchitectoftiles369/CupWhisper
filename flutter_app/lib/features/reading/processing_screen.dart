@@ -6,6 +6,7 @@ import '../../services/ai_service.dart';
 import '../../services/app_language.dart';
 import '../../services/app_strings.dart';
 import '../../services/auth_service.dart';
+import '../../services/purchase_service.dart';
 import '../../services/user_repository.dart';
 import 'symbol_reveal_screen.dart';
 
@@ -25,6 +26,7 @@ class ProcessingScreen extends ConsumerStatefulWidget {
 
 class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   final AIService _aiService = BackendAIService();
+  final PurchaseService _purchaseService = PurchaseService();
 
   static const List<String> _messageKeys = [
     'processing_msg_1',
@@ -96,10 +98,51 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
       );
     } on NoCreditsException {
       if (!mounted) return;
-      _showErrorAndGoBack(ref.tr('no_credits_message'));
+      _offerPurchase();
     } catch (e) {
       if (!mounted) return;
       _showErrorAndGoBack(ref.tr('reading_error_message'));
+    }
+  }
+
+  Future<void> _offerPurchase() async {
+    final wantsToBuy = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(ref.tr('buy_reading_title')),
+        content: Text(ref.tr('buy_reading_body')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(ref.tr('cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(ref.tr('buy_for_price')),
+          ),
+        ],
+      ),
+    );
+
+    if (wantsToBuy != true) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      return;
+    }
+
+    try {
+      final success = await _purchaseService.buyReadingCredit();
+      if (!mounted) return;
+
+      if (success) {
+        _generateReading();
+      } else {
+        _showErrorAndGoBack(ref.tr('purchase_failed_message'));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorAndGoBack(ref.tr('purchase_failed_message'));
     }
   }
 
