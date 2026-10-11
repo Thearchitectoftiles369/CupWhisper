@@ -11,7 +11,7 @@ class AuthService {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<User> ensureSignedIn() async {
-    final existing = _auth.currentUser;
+    final existing = _auth.currentUser ?? await _auth.authStateChanges().first;
     if (existing != null) return existing;
 
     final credential = await _auth.signInAnonymously();
